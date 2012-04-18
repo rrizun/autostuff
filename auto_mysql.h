@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <stdio.h>
@@ -40,7 +39,7 @@ struct count_rows {
 };
 
 struct print_rows {
-	void operator()(map<string, string> row) {
+	void operator()(map<string, string> row) const {
 		for (map<string, string>::iterator iter = row.begin(); iter != row.end(); ++iter)
 			printf("%s=%s|", (*iter).first.c_str(), (*iter).second.c_str());
 		printf("\n");
