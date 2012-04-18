@@ -209,24 +209,25 @@ main(int argc, char **argv) {
 
 	print_auto_flags(&flags);
 
-	auto_mysql handle(OdbcNewConnection("OWConfig"));
-//	auto_mysql_stmt(handle.get(), "select * from OWConfig where ComponentURI=?", "foo").execute(print_rows());
-
-	WozConfig config;
-	OWReadConfig("OWConfig", &config, "foo");
-//	config.PrintDebugString();
-//	printf("cli_filebase is %s\n", config.cli_filebase().c_str());
-
-	WozStatus status;
-	status.set_bytes_sent(123);
-	status.set_bytes_received(456);
-	OWWriteStatus("OWZzzStatus", &status, "bar");
+//	auto_mysql handle(OdbcNewConnection("OWConfig"));
+////	auto_mysql_stmt(handle.get(), "select * from OWConfig where ComponentURI=?", "foo").execute(print_rows());
+//
+//	WozConfig config;
+//	OWReadConfig("OWConfig", &config, "foo");
+////	config.PrintDebugString();
+////	printf("cli_filebase is %s\n", config.cli_filebase().c_str());
+//
+//	WozStatus status;
+//	status.set_bytes_sent(123);
+//	status.set_bytes_received(456);
+//	OWWriteStatus("OWZzzStatus", &status, "bar");
 
 	//	printf("the count is %d\n", auto_mysql_stmt(handle.get(), "select * from OWConfig").execute(count_rows()).result);
 
 	boost::shared_ptr<event_base> base(event_base_new(), event_base_free);
 
-	if (run_unit_tests) {
+//	if (run_unit_tests)
+	{
 		  ::testing::InitGoogleTest(&argc, argv);
 		  return RUN_ALL_TESTS();
 	}
