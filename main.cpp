@@ -157,7 +157,7 @@ OWWriteStatus(string dsn, ::google::protobuf::Message *status, string component_
 	}
 }
 
-// Note- rhel54 bundles libboost 1.33, filesystem3 was introduced in listboost 1.44
+// Note- rhel54 bundles libboost 1.33, filesystem3 was introduced in libboost 1.44
 #include <dirent.h>
 #include <boost/filesystem.hpp>
 using namespace boost::filesystem;
