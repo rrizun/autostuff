@@ -37,10 +37,12 @@ namespace {
 inline auto_mysql
 OdbcNewConnection(string dsn) {
 	string each_dsn;
-	map<string/*each_dsn*/, OdbcConfig> dsnMap;
 
+	//###TODO(rrizun) fix these regex
 	regex re1("\\[([a-zA-Z0-9]+)\\]");
 	regex re2("([a-zA-Z0-9]+)=(.+)");
+
+	map<string/*each_dsn*/, OdbcConfig> dsnMap;
 
 	string line;
 	ifstream odbc_ini("/etc/odbc.ini");
