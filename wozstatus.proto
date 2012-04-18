@@ -1,0 +1,4 @@
+message WozStatus {
+	required uint64 bytes_sent = 1;
+	required uint64 bytes_received  = 2;
+}

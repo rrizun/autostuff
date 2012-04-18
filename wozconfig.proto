@@ -1,0 +1,6 @@
+
+message WozConfig {
+	required bool run = 1;
+	required string woz_listen_addr = 2 [default = "0.0.0.0:8001"];
+	required string woz_fabric_address = 3;
+}
