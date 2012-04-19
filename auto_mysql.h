@@ -182,6 +182,7 @@ private:
 	}
 };
 
+// auto mysql transaction
 class auto_mysql_tx {
 	MYSQL *handle;
 public:
