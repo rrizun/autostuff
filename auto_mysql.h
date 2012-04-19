@@ -17,10 +17,12 @@ using namespace boost;
 
 #define MYSQLTHROW(fmt,...)do{char _throw_tmp[2000];snprintf(_throw_tmp,sizeof(_throw_tmp),"%s:%d "fmt,__FILE__,__LINE__,##__VA_ARGS__);fprintf(stderr,"%s\n",_throw_tmp);throw runtime_error(_throw_tmp);}while(0)
 
+// convenience functor
 struct dont_care {
 	void operator()(map<string,string>)const{}
 };
 
+// convenience functor
 template<class T>
 struct query_for {
 	T result;
@@ -29,6 +31,7 @@ struct query_for {
 	};
 };
 
+// convenience functor
 struct count_rows {
 	int result;
 	count_rows(): result(0) {
@@ -38,6 +41,7 @@ struct count_rows {
 	}
 };
 
+// convenience functor
 struct print_rows {
 	void operator()(map<string, string> row) const {
 		for (map<string, string>::iterator iter = row.begin(); iter != row.end(); ++iter)
