@@ -39,8 +39,9 @@ OdbcNewConnection(string dsn) {
 	string each_dsn;
 
 	//###TODO(rrizun) fix these regex
-	regex re1("\\[([a-zA-Z0-9]+)\\]");
-	regex re2("([a-zA-Z0-9]+)=(.+)");
+	regex re1("\\[([a-zA-Z0-9]+)\\]"); // [foo]
+	//###TODO(rrizun) fix these regex
+	regex re2("([a-zA-Z0-9]+)=(.+)"); // bar=baz
 
 	map<string/*each_dsn*/, OdbcConfig> dsnMap;
 
