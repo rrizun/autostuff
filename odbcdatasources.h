@@ -73,7 +73,7 @@ OdbcNewConnection(string dsn) {
 	}
 	auto_mysql handle(mysql_init(0), safe_mysql_close);
 	if (!handle)
-		throw runtime_error("mysql_init");
+		throw runtime_error("OdbcNewConnection: mysql_init: "+dsn);
 	if (mysql_real_connect(handle.get(), dsnMap[dsn].Server.c_str(), dsnMap[dsn].User.c_str(), dsnMap[dsn].Password.c_str(), dsnMap[dsn].Database.c_str(), 0, 0, 0) == 0)
 		throw runtime_error(mysql_error(handle.get()));
 	return handle;
