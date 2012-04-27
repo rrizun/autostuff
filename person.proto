@@ -1,5 +1,5 @@
 message Person {
   required int32 id = 1;
   required string name = 2;
-  required string email = 4;
+  required string email = 5;
 }
