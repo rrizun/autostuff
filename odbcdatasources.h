@@ -39,9 +39,9 @@ OdbcNewConnection(string dsn) {
 	string each_dsn;
 
 	//###TODO(rrizun) fix these regex
-	regex re1("\\[([a-zA-Z0-9]+)\\]"); // [foo]
+	boost::regex re1("\\[([a-zA-Z0-9]+)\\]"); // [foo]
 	//###TODO(rrizun) fix these regex
-	regex re2("([a-zA-Z0-9]+)=(.+)"); // bar=baz
+	boost::regex re2("([a-zA-Z0-9]+)=(.+)"); // bar=baz
 
 	map<string/*each_dsn*/, OdbcConfig> dsnMap;
 
@@ -53,12 +53,12 @@ OdbcNewConnection(string dsn) {
 		if (line[0] == '#')
 			continue;
 
-		match_results<const char *> m;
+		boost::match_results<const char *> m;
 
-		if (regex_match(line.c_str(), m, re1))
+		if (boost::regex_match(line.c_str(), m, re1))
 			each_dsn = m[1].str();
 
-		if (regex_match(line.c_str(), m, re2)) {
+		if (boost::regex_match(line.c_str(), m, re2)) {
 			string key(m[1].str());
 			string value(m[2].str());
 			if (key == "Server")

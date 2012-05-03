@@ -13,9 +13,6 @@
 #include <mysql/mysql.h>
 
 using namespace std;
-using namespace boost;
-
-#define MYSQLTHROW(fmt,...)do{char _throw_tmp[2000];snprintf(_throw_tmp,sizeof(_throw_tmp),"%s:%d "fmt,__FILE__,__LINE__,##__VA_ARGS__);fprintf(stderr,"%s\n",_throw_tmp);throw runtime_error(_throw_tmp);}while(0)
 
 // convenience functor
 struct dont_care {
@@ -51,7 +48,7 @@ struct print_rows {
 };
 
 // Usage: auto_mysql c(mysql_init(NULL), safe_mysql_close);
-typedef shared_ptr<MYSQL> auto_mysql;
+typedef boost::shared_ptr<MYSQL> auto_mysql;
 
 // use w/auto_mysql
 inline void
@@ -122,12 +119,12 @@ public:
 			input_bindings[i].buffer_length= param_values[i].size();
 		}
         if (mysql_stmt_bind_param(stmt, input_bindings.data()) != 0)
-			MYSQLTHROW("%s %s", sql.c_str(), mysql_stmt_error(stmt));
+			throw runtime_error(sql+mysql_stmt_error(stmt));
 		if (mysql_stmt_execute(stmt) != 0)
-			MYSQLTHROW("%s %s", sql.c_str(), mysql_stmt_error(stmt));
+			throw runtime_error(sql+mysql_stmt_error(stmt));
 		//if (mysql_stmt_num_rows())
 		unsigned int num_fields = 0;
-		shared_ptr<MYSQL_RES> res(mysql_stmt_result_metadata(stmt), mysql_free_result);
+		boost::shared_ptr<MYSQL_RES> res(mysql_stmt_result_metadata(stmt), mysql_free_result);
 		if (res.get())
 			num_fields = mysql_num_fields(res.get());
 		if (num_fields > 0) {
@@ -136,7 +133,7 @@ public:
 			// 0=ok 1=error 100=no_data
 			while ((result = bind_and_fetch(num_fields)) != MYSQL_NO_DATA) {
 				if (result == 1)
-					MYSQLTHROW("%s %s", sql.c_str(), mysql_stmt_error(stmt));
+					throw runtime_error(sql+mysql_stmt_error(stmt));
 				map<string, string> row;
 				for (unsigned int field = 0; field < num_fields; ++field) {
 					if (output_bindings[field].buffer_length > 0) {
@@ -144,7 +141,7 @@ public:
 						row[fields[field].name].resize(output_bindings[field].buffer_length);
 						output_bindings[field].buffer = (void*) row[fields[field].name].data();
 						if (mysql_stmt_fetch_column(stmt, &output_bindings[field], field, 0) != 0)
-							MYSQLTHROW("%s %s", sql.c_str(), mysql_stmt_error(stmt));
+							throw runtime_error(sql+mysql_stmt_error(stmt));
 					}
 				}
 				callback(row);
@@ -164,9 +161,9 @@ private:
 	vector<MYSQL_BIND> output_bindings;
 	void init(MYSQL *handle) {
 		if (stmt == 0)
-			MYSQLTHROW("%s %s", sql.c_str(), mysql_error(handle));
+			throw runtime_error(sql+mysql_error(handle));
 		if (mysql_stmt_prepare(stmt, sql.c_str(), sql.size()) != 0)
-			MYSQLTHROW("%s %s", sql.c_str(), mysql_stmt_error(stmt));
+			throw runtime_error(sql+mysql_stmt_error(stmt));
 	}
 	int bind_and_fetch(unsigned int num_fields) {
 		for (unsigned int field = 0; field < num_fields; ++field) {
@@ -176,7 +173,7 @@ private:
 		}
 		if (num_fields > 0) {
 			if (mysql_stmt_bind_result(stmt, output_bindings.data()) != 0)
-				MYSQLTHROW("%s %s", sql.c_str(), mysql_stmt_error(stmt));
+				throw runtime_error(sql+mysql_stmt_error(stmt));
 		}
 		return mysql_stmt_fetch(stmt);
 	}
@@ -188,10 +185,10 @@ class auto_mysql_tx {
 public:
 	auto_mysql_tx(MYSQL *handle): handle(handle) {
 		if (mysql_query(handle, "begin")!=0)
-			MYSQLTHROW("%s", mysql_error(handle));
+			throw runtime_error(mysql_error(handle));
 	}
 	~auto_mysql_tx() {
 		if (mysql_query(handle, "commit")!=0)
-			MYSQLTHROW("%s", mysql_error(handle));
+			throw runtime_error(mysql_error(handle));
 	}
 };

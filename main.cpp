@@ -30,7 +30,7 @@
 //#include <gflags/gflags.h>
 
 using namespace std;
-//using namespace boost;
+using namespace boost;
 using namespace google;
 using namespace google::protobuf;
 
@@ -208,8 +208,9 @@ main(int argc, char **argv) {
 
 	print_auto_flags(&flags);
 
-//	auto_mysql handle(OdbcNewConnection("OWConfig"));
-////	auto_mysql_stmt(handle.get(), "select * from OWConfig where ComponentURI=?", "foo").execute(print_rows());
+	auto_mysql handle(OdbcNewConnection("OWStatus"));
+	auto_mysql_stmt(handle.get(), "describe OWStatus").execute(print_rows());
+//	auto_mysql_stmt(handle.get(), "select * from OWStatus where ComponentURI=?", "foo").execute(print_rows());
 //
 //	WozConfig config;
 //	OWReadConfig("OWConfig", &config, "foo");
