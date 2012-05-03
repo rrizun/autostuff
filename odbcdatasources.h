@@ -38,10 +38,8 @@ inline auto_mysql
 OdbcNewConnection(string dsn) {
 	string each_dsn;
 
-	//###TODO(rrizun) fix these regex
 	boost::regex re1("\\[([a-zA-Z0-9]+)\\]"); // [foo]
-	//###TODO(rrizun) fix these regex
-	boost::regex re2("([a-zA-Z0-9]+)=(.+)"); // bar=baz
+	boost::regex re2("([a-zA-Z0-9]+)\\s=\\s(.+)"); // bar=baz
 
 	map<string/*each_dsn*/, OdbcConfig> dsnMap;
 
