@@ -39,7 +39,7 @@ OdbcNewConnection(string dsn) {
 	string each_dsn;
 
 	boost::regex re1("\\[([a-zA-Z0-9]+)\\]"); // [foo]
-	boost::regex re2("([a-zA-Z0-9]+)\\s=\\s(.+)"); // bar=baz
+	boost::regex re2("([a-zA-Z0-9]+)\\s*=\\s*(.+)"); // bar=baz
 
 	map<string/*each_dsn*/, OdbcConfig> dsnMap;
 
