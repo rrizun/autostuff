@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <sstream>
@@ -35,23 +36,60 @@ write_callback(void *ptr, size_t size, size_t nmemb, void *stream) {
   return size * nmemb;
 }
 
+inline string
+url_encode(string s) {
+  string result;
+  static const char hexAlphabet[] = "0123456789ABCDEF";
+  for (unsigned i = 0; i < s.length(); ++i) {
+    if (isalnum(s[i])) {
+      result += s[i];
+    } else if (s[i] == '-') {
+      result += s[i];
+    } else if (s[i] == '_') {
+      result += s[i];
+    } else if (s[i] == '.') {
+      result += s[i];
+    } else {
+      result += "%";
+      result += hexAlphabet[(unsigned char)(s[i]) / 16];
+      result += hexAlphabet[(unsigned char)(s[i]) % 16];
+    }
+  }
+  return result;
+}
+
+inline string
+www_form_urlencoded(std::map<string, string> m) {
+  string result;
+  for (std::map<string, string>::iterator iter = m.begin(); iter != m.end(); ++iter) {
+	if (iter != m.begin())
+	  result += "&";
+	result += url_encode((*iter).first);
+	result += "=";
+	result += url_encode((*iter).second);
+  }
+  return result;
+}
+
 /**
- * invoke HTTP GET
+ * invoke HTTP transaction
  *
  * @param url e.g., "http://feeds.nytimes.com/nyt/rss/HomePage"
  * @return the http response payload
  */
 inline string
-curl_get(string url) {
-//	stringstream in; // request payload (e.g., POST)
+curl_get(string url, string request_payload="") {
+	stringstream in(request_payload); // request payload (e.g., POST)
 	stringstream out; // response payload
 	boost::shared_ptr<CURL> curl(curl_easy_init(), curl_easy_cleanup);
 
+    VERIFY(curl_easy_setopt(curl.get(), CURLOPT_POST, 1));
+    VERIFY(curl_easy_setopt(curl.get(), CURLOPT_POSTFIELDSIZE, request_payload.size()));
+
 	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_URL, url.c_str()));
 	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_FOLLOWLOCATION, 1));
-	long signal = 1;
-	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_NOSIGNAL, signal));
-	long connect_timeout = 2;
+	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_NOSIGNAL, 1));
+	long connect_timeout = 1;
 	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_CONNECTTIMEOUT, connect_timeout));
 	long readwrite_timeout = 5;
 	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_TIMEOUT, readwrite_timeout));
@@ -59,8 +97,8 @@ curl_get(string url) {
 	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_SSL_VERIFYHOST, 0));
 	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_SSL_VERIFYPEER, 0));
 
-//	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_READDATA, &in));
-//	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_READFUNCTION, read_callback));
+	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_READDATA, &in));
+	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_READFUNCTION, read_callback));
 	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &out));
 	VERIFY(curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, write_callback));
 
