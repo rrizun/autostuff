@@ -18,7 +18,8 @@
 #include "event2/bufferevent.h"
 
 #include <google/protobuf/descriptor.h>
-#include <gtest/gtest.h>
+
+#include "gtest/gtest.h"
 
 #include "auto_mysql.h"
 #include "odbcdatasources.h"
@@ -156,25 +157,25 @@ OWWriteStatus(string dsn, ::google::protobuf::Message *status, string component_
 	}
 }
 
-// Note- rhel54 bundles libboost 1.33, filesystem3 was introduced in libboost 1.44
-#include <dirent.h>
-#include <boost/filesystem.hpp>
-using namespace boost::filesystem;
-
-/**
- * Returns the cpu core count.
- */
-static int
-cpu_core_count() {
-	int result = 0;
-	regex re("cpu\\d");
-	path dir("/sys/devices/system/cpu");
-	for (directory_iterator iter(dir), iter_end; iter != iter_end; ++iter) {
-		if (regex_search((*iter).path().c_str(), re))
-			++result;
-	}
-	return result;
-}
+//// Note- rhel54 bundles libboost 1.33, filesystem3 was introduced in libboost 1.44
+//#include <dirent.h>
+//#include <boost/filesystem.hpp>
+//using namespace boost::filesystem;
+//
+///**
+// * Returns the cpu core count.
+// */
+//static int
+//cpu_core_count() {
+//	int result = 0;
+//	regex re("cpu\\d");
+//	path dir("/sys/devices/system/cpu");
+//	for (directory_iterator iter(dir), iter_end; iter != iter_end; ++iter) {
+//		if (regex_search((*iter).path().c_str(), re))
+//			++result;
+//	}
+//	return result;
+//}
 
 #include "auto_flags.h"
 
