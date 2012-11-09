@@ -168,7 +168,7 @@ OWWriteStatus(string dsn, ::google::protobuf::Message *status, string component_
 //static int
 //cpu_core_count() {
 //	int result = 0;
-//	regex re("cpu\\d");
+//	regex re("cpu\\d+");
 //	path dir("/sys/devices/system/cpu");
 //	for (directory_iterator iter(dir), iter_end; iter != iter_end; ++iter) {
 //		if (regex_search((*iter).path().c_str(), re))
