@@ -5,8 +5,13 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 #include "auto_mysql.h"
+
+using namespace std;
+using namespace boost;
+using namespace boost::algorithm;
 
 struct OdbcConfig {
 	string Server;
@@ -14,22 +19,6 @@ struct OdbcConfig {
 	string Password;
 	string Database;
 };
-
-namespace {
-	inline string trim_left(string s, string t) {
-	  return s.erase(0, s.find_first_not_of(t));
-	} // end of trim_left
-	inline string trim_right(string s, string t) {
-	  string::size_type i(s.find_last_not_of(t));
-	  if (i == string::npos)
-		return "";
-	  else
-		return s.erase(s.find_last_not_of(t) + 1);
-	} // end of trim_right
-	inline string trim(string s, string t = " \t\r\n") {
-	  return trim_left(trim_right(s, t), t);
-	} // end of trim
-}
 
 /**
  * @param dsn from /etc/odbc.ini
@@ -46,7 +35,7 @@ OdbcNewConnection(string dsn) {
 	string line;
 	ifstream odbc_ini("/etc/odbc.ini");
 	while (getline(odbc_ini, line)) {
-		line = trim(line);
+		trim(line);
 
 		if (line[0] == '#')
 			continue;
