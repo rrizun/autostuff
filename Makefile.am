@@ -4,13 +4,7 @@ AM_LDFLAGS=
 bin_PROGRAMS=
 BUILT_SOURCES=
 
-AM_CPPFLAGS += `mysql_config --cflags`
-AM_LDFLAGS += `mysql_config --libs`
-
-SUBDIRS = libevent-2.0.16-stable
-
 AM_CPPFLAGS += $(LIBXML2_CFLAGS)
-AM_CPPFLAGS += -Ilibevent-2.0.16-stable/include
 
 %.pb.h %.pb.cc: %.proto
 	protoc -I. --cpp_out=. $<
@@ -31,11 +25,10 @@ auto_SOURCES += auto_xml_test.cpp
 auto_SOURCES += gtest/gtest-all.cc
 
 auto_LDADD=
-auto_LDADD += libevent-2.0.16-stable/.libs/libevent.a
+auto_LDADD += $(LIBEVENT_LIBS)
 auto_LDADD += $(LIBCURL_LIBS)
 auto_LDADD += $(LIBXML2_LIBS)
 auto_LDADD += $(PROTOBUF_LIBS)
-auto_LDADD += -lboost_filesystem
-auto_LDADD += -lboost_regex
+auto_LDADD += $(MYSQL_CLIENT_LIBS)
 
 CLEANFILES = $(BUILT_SOURCES)

@@ -11,7 +11,6 @@
 #include <string>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "event2/event.h"
@@ -22,7 +21,7 @@
 #include "gtest/gtest.h"
 
 #include "auto_mysql.h"
-#include "odbcdatasources.h"
+
 // bar
 #include "person.pb.h"
 #include "wozconfig.pb.h"
@@ -101,61 +100,61 @@ SetFieldValue(Message *message, const FieldDescriptor *field, const string& valu
 	}
 }
 
-struct OWReadConfigVisitor {
-	::google::protobuf::Message *config;
-	OWReadConfigVisitor(::google::protobuf::Message *config): config(config) {
-	}
-	void operator()(map<string, string> row) {
-		//ComponentURI|RowId|name|status=active|value
-		string name(row["name"]);
-		string value(row["value"]);
+//struct OWReadConfigVisitor {
+//	::google::protobuf::Message *config;
+//	OWReadConfigVisitor(::google::protobuf::Message *config): config(config) {
+//	}
+//	void operator()(map<string, string> row) {
+//		//ComponentURI|RowId|name|status=active|value
+//		string name(row["name"]);
+//		string value(row["value"]);
+//
+//		match_results<const char *> results;
+//		regex re("([a-z]+_[a-zA-Z0-9]+)_([0-9]+)"); // e.g., foo_barBaz_1
+//		if (regex_match(name.c_str(), results, re))
+//			name = results[1].str(); // e.g., foo_barBaz
+//
+//		const FieldDescriptor *field = config->GetDescriptor()->FindFieldByName(name);
+//		if (field)
+//			SetFieldValue(config, field, value); // works for scalars and columnars
+//	}
+//};
 
-		match_results<const char *> results;
-		regex re("([a-z]+_[a-zA-Z0-9]+)_([0-9]+)"); // e.g., foo_barBaz_1
-		if (regex_match(name.c_str(), results, re))
-			name = results[1].str(); // e.g., foo_barBaz
+///**
+// * reads the given iVOG_Config config
+// *
+// * @param dsn e.g., "OWConfig"
+// * @param config
+// * @param component_uri e.g., "foo/ch01/sl02/vm3/4"
+// */
+//inline void
+//OWReadConfig(string dsn, ::google::protobuf::Message *config, string component_uri) {
+//	auto_mysql handle(OdbcNewConnection(dsn));
+//	auto_mysql_stmt(handle.get(), "select * from OWConfig where ComponentURI=?", component_uri).execute(OWReadConfigVisitor(config));
+//}
 
-		const FieldDescriptor *field = config->GetDescriptor()->FindFieldByName(name);
-		if (field)
-			SetFieldValue(config, field, value); // works for scalars and columnars
-	}
-};
-
-/**
- * reads the given iVOG_Config config
- *
- * @param dsn e.g., "OWConfig"
- * @param config
- * @param component_uri e.g., "foo/ch01/sl02/vm3/4"
- */
-inline void
-OWReadConfig(string dsn, ::google::protobuf::Message *config, string component_uri) {
-	auto_mysql handle(OdbcNewConnection(dsn));
-	auto_mysql_stmt(handle.get(), "select * from OWConfig where ComponentURI=?", component_uri).execute(OWReadConfigVisitor(config));
-}
-
-/**
- * writes the given iVOG_Status status
- *
- * @param dsn e.g., "OWZzzStatus"
- * @param status
- * @param component_uri e.g., "foo/ch01/sl02/vm3/4"
- */
-inline void
-OWWriteStatus(string dsn, ::google::protobuf::Message *status, string component_uri) {
-	auto_mysql handle(OdbcNewConnection(dsn));
-	int last_row_id(auto_mysql_stmt(handle.get(), "select coalesce(max(RowId),0) from OWStatus").execute(query_for<int>()).result);
-	int new_group_id(auto_mysql_stmt(handle.get(), "select coalesce(max(GroupId),0) from OWStatus").execute(query_for<int>()).result + 1);
-	for (int index = 0; index < status->GetDescriptor()->field_count(); ++index) {
-		const FieldDescriptor *field = status->GetDescriptor()->field(index);
-		if (status->GetReflection()->HasField(*status, field)) {
-			string name(field->name());
-			string value(GetFieldValue(status, field));
-			string sql2("insert into OWStatus (RowId, GroupId, name, value, ComponentURI) values (?,?,?,?,?)");
-			auto_mysql_stmt(handle.get(), sql2, ++last_row_id, new_group_id, name, value, component_uri).execute();
-		}
-	}
-}
+///**
+// * writes the given iVOG_Status status
+// *
+// * @param dsn e.g., "OWZzzStatus"
+// * @param status
+// * @param component_uri e.g., "foo/ch01/sl02/vm3/4"
+// */
+//inline void
+//OWWriteStatus(string dsn, ::google::protobuf::Message *status, string component_uri) {
+//	auto_mysql handle(OdbcNewConnection(dsn));
+//	int last_row_id(auto_mysql_stmt(handle.get(), "select coalesce(max(RowId),0) from OWStatus").execute(query_for<int>()).result);
+//	int new_group_id(auto_mysql_stmt(handle.get(), "select coalesce(max(GroupId),0) from OWStatus").execute(query_for<int>()).result + 1);
+//	for (int index = 0; index < status->GetDescriptor()->field_count(); ++index) {
+//		const FieldDescriptor *field = status->GetDescriptor()->field(index);
+//		if (status->GetReflection()->HasField(*status, field)) {
+//			string name(field->name());
+//			string value(GetFieldValue(status, field));
+//			string sql2("insert into OWStatus (RowId, GroupId, name, value, ComponentURI) values (?,?,?,?,?)");
+//			auto_mysql_stmt(handle.get(), sql2, ++last_row_id, new_group_id, name, value, component_uri).execute();
+//		}
+//	}
+//}
 
 //// Note- rhel54 bundles libboost 1.33, filesystem3 was introduced in libboost 1.44
 //#include <dirent.h>
@@ -209,8 +208,8 @@ main(int argc, char **argv) {
 
 	print_auto_flags(&flags);
 
-	auto_mysql handle(OdbcNewConnection("OWStatus"));
-	auto_mysql_stmt(handle.get(), "describe OWStatus").execute(print_rows());
+//	auto_mysql handle(OdbcNewConnection("OWStatus"));
+//	auto_mysql_stmt(handle.get(), "describe OWStatus").execute(print_rows());
 //	auto_mysql_stmt(handle.get(), "select * from OWStatus where ComponentURI=?", "foo").execute(print_rows());
 //
 //	WozConfig config;
